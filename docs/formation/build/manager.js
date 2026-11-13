@@ -19,7 +19,7 @@ module.exports = async function buildManager(out) {
   s.addText("Piloter l’activité, chiffrer et valider les devis, organiser l’équipe terrain, gérer clients, factures et catalogue.", { placeholder: "body" });
   L.tringle(pres, s, { x: 0.9, y: 6.35, w: 5.5, n: 6, active: 1, dark: true, d: 0.2 });
   s.addText("Accès : maisondustoream.com/admin/connexion", tb({ x: 7.2, y: 6.3, w: 5.3, h: 0.3, align: "right", fontFace: MONO, fontSize: 11, color: HEX.sapinMuted }));
-  s.addNotes("Formation du rôle Manager (« bureau »). Durée conseillée : 2 h 30 avec un devis de démonstration chiffré de bout en bout. Les écrans sont les maquettes de conception de l’Espace Pro (docs/maquette), les règles celles du code (Backend/ADMIN.md, QUOTE-PRICING.md, routes/staff.php). Les maquettes desktop montrent le compte de l’Admin principal : le manager n’y voit pas Images et portfolio, Documents et automatisations, Mise en page, Visiteurs ni Équipe.");
+  s.addNotes("Formation du rôle Manager (« bureau »). Durée conseillée : 2 h 30 avec un devis de démonstration chiffré de bout en bout. Les écrans sont les maquettes de conception de l’Espace Pro (docs/maquette), capturées en version mobile (390 px, onglets du bureau en bas d’écran), les règles celles du code (Backend/ADMIN.md, QUOTE-PRICING.md, routes/staff.php). Les maquettes montrent le compte de l’Admin principal : dans l’onglet « Plus », le manager ne voit pas Images et portfolio, Documents et automatisations ni Équipe (il garde Catalogue et Corbeille).");
 
   // 2. Parcours -----------------------------------------------------------------
   s = S({ section: "Introduction", kicker: "Parcours de formation", title: "Six modules pour tenir le bureau" });
@@ -61,16 +61,18 @@ module.exports = async function buildManager(out) {
   L.divider(pres, { section: "1 · Pilotage", kicker: "Module 01", title: "Piloter l’activité", body: "La vue d’ensemble dit ce qui attend, ce qui bloque et ce qui est dû.", mod: 1, total: T });
 
   s = S({ section: "1 · Pilotage", mod: 1, kicker: "Module 01 · Vue d’ensemble", title: "Ce qui attend le bureau aujourd’hui" });
-  let r = L.shot(pres, s, "dashboard", { x: 0.6, y: 1.65, w: 7.9, h: 5.05 }, { align: "left", caption: "Maquette · Vue d’ensemble (compte Admin principal)" });
-  [[0.545, 0.04], [0.975, 0.18], [0.7, 0.38], [0.975, 0.38], [0.975, 0.71], [0.7, 0.76]].forEach(([fx, fy], i) => L.marker(pres, s, r, i + 1, fx, fy));
+  let r = L.phone(pres, s, "m_home", { x: 0.6, y: 1.6, h: 5.2, caption: "Accueil" });
+  [[0.78, 0.07], [0.96, 0.135], [0.72, 0.445], [0.6, 0.8], [0.5, 0.95]].forEach(([fx, fy], i) => L.marker(pres, s, r, i + 1, fx, fy));
+  const r2 = L.phone(pres, s, "m_plus", { x: 3.2, y: 1.6, h: 5.2, caption: "Onglet « Plus »" });
+  L.marker(pres, s, r2, 6, 0.9, 0.3);
   L.legend(pres, s, [
     ["Recherche globale", "Client, téléphone, numéro de devis ou de facture."],
-    ["Compteurs", "Devis à traiter, rendez-vous à confirmer, messages non lus."],
-    ["Planning de la semaine", "Prestations de chaque agent."],
-    ["Devis à valider", "Dont « Prix à définir » : à compléter avant validation."],
-    ["Factures émises non payées", "Total dû, ancienneté de l’émission."],
-    ["Prestations à venir", "Date, type, client, agent, état."],
-  ], { x: 8.85, y: 1.7, w: 3.85, rowH: 0.66, gap: 0.16, size: 12.5 });
+    ["À traiter", "Devis à valider (dont prix à définir), rendez-vous à confirmer, messages non lus, factures impayées."],
+    ["Aujourd’hui sur le terrain", "Interventions du jour, agent et état ; lien vers le planning."],
+    ["Devis à valider", "Montant et ancienneté ; « Prix à définir » à compléter avant validation."],
+    ["Onglets du bureau", "Accueil, Devis, Planning, Clients, Plus."],
+    ["Plus", "Prestations, matériaux et finitions, factures, messagerie, catalogue."],
+  ], { x: 6.0, y: 1.7, w: 6.7, rowH: 0.68, gap: 0.14, size: 13.5 });
   s.addNotes("dashboard.blade.php (branche admin) : Devis à valider, Prix à définir, Factures émises non payées et Total dû, Planning de la semaine, Prestations à venir. Le bloc Automatisations (SMTP, exécution des règles) n’est utile qu’à l’Admin principal : la page Documents et automatisations est réservée au rôle owner. Compteurs du menu : devis pending + draft, rendez-vous pending, messages entrants non lus.");
 
   s = S({ section: "1 · Pilotage", mod: 1, kicker: "Module 01 · Notifications", title: "Être prévenu sans surveiller l’écran" });
@@ -108,22 +110,26 @@ module.exports = async function buildManager(out) {
   s.addNotes("QuoteWorkflow::STAGES : En fabrication, Pose planifiée, Installé, Solde attendu, Soldé ; états calculés : draft, approved, sent (message envoyé ou partagé), deposit_pending, deposit_paid. QuoteWorkflowController : « L’accord du client doit être enregistré avant le démarrage », « L’acompte requis doit être reçu et enregistré avant le démarrage de la fabrication », « Le solde doit être reçu et enregistré avant de solder le dossier ». Le workflow ne déclenche aucun message par lui-même.");
 
   s = S({ section: "2 · Devis", mod: 2, kicker: "Module 02 · La fiche devis", title: "Tout le dossier sur une page" });
-  r = L.shot(pres, s, "devisfiche", { x: 0.6, y: 1.65, w: 7.6, h: 5.15 }, { align: "left" });
-  [[0.15, 0.2], [0.745, 0.35], [0.745, 0.62], [0.977, 0.35], [0.977, 0.58], [0.977, 0.76], [0.977, 0.91], [0.88, 0.1]].forEach(([fx, fy], i) => L.marker(pres, s, r, i + 1, fx, fy));
+  r = L.phone(pres, s, "m_fichefen", { x: 0.6, y: 1.6, h: 5.2, caption: "Fiche · Fenêtres" });
+  L.marker(pres, s, r, 1, 0.9, 0.11);
+  r = L.phone(pres, s, "m_fichechif", { x: 3.2, y: 1.6, h: 5.2, caption: "Fiche · Chiffrage et notes" });
+  L.marker(pres, s, r, 2, 0.9, 0.12); L.marker(pres, s, r, 3, 0.9, 0.76);
   L.legend(pres, s, [
-    ["Frise d’avancement", "Six étapes, de Reçu à Facturé."],
-    ["Fenêtres", "Choix communs et choix par fenêtre."],
-    ["Chiffrage", "Lignes, sous-total, taxe, total."],
-    ["Client", "Coordonnées, lien vers la fiche."],
-    ["Planification", "Agent, validité, livraison, pose."],
-    ["Paiements", "Avance attendue, versements."],
-    ["Historique", "Qui a fait quoi, et quand."],
-    ["Actions", "PDF, message, modifier, acceptation."],
-  ], { x: 8.6, y: 1.7, w: 4.1, rowH: 0.48, gap: 0.14, size: 12 });
+    ["Fenêtres", "Choix communs, dimensions et choix de chaque fenêtre."],
+    ["Chiffrage", "Lignes, sous-total, taxe, total TTC."],
+    ["Notes internes", "Visibles par l’équipe seulement : on y consigne la preuve de l’acceptation."],
+  ], { x: 6.0, y: 1.7, w: 6.7, rowH: 0.72, gap: 0.16, size: 13.5 });
+  L.card(pres, s, { x: 6.0, y: 4.45, w: 6.7, h: 2.25, fill: HEX.panel, name: "Haut de fiche" });
+  L.tag(s, "Aussi sur la fiche", 6.3, 4.65, 6);
+  L.bullets(s, [
+    [{ text: "En haut : ", bold: true }, { text: "PDF, Préparer un message, Modifier, Enregistrer l’acceptation." }],
+    [{ text: "Frise : ", bold: true }, { text: "Reçu, Brouillon, Validé, Envoyé, Accepté, Facturé." }],
+    [{ text: "En bas : ", bold: true }, { text: "client, planification (agent, validité, livraison, pose), paiements, historique." }],
+  ], { x: 6.3, y: 5.0, w: 6.2, h: 1.65, size: 13, space: 4 });
   s.addNotes("Faire ouvrir un devis de démonstration. Les notes internes (sous le chiffrage) ne sont visibles que par le bureau ; c’est là qu’on consigne la preuve de l’acceptation du client. Les dates prévisionnelles de livraison et de pose ne créent pas d’intervention dans le planning : il faut créer la prestation.");
 
   s = S({ section: "2 · Devis", mod: 2, kicker: "Module 02 · Chiffrage", title: "Calculer depuis le catalogue, puis ajuster" });
-  r = L.shot(pres, s, "chiffrage", { x: 0.6, y: 1.65, w: 6.4, h: 4.6 }, { align: "left", caption: "Maquette · Formulaire complet, bloc Chiffrage" });
+  r = L.phone(pres, s, "m_chiffrage", { x: 0.9, y: 1.6, h: 5.2, caption: "Formulaire · Chiffrage" });
   const rules = [
     [{ text: "Prix vide = prix du catalogue ; 0 = offert. ", bold: true }, { text: "Un prix de pose vide reste « à définir » et bloque la validation." }],
     [{ text: "Pose rideaux : ", bold: true }, { text: "toujours saisie dans le devis. Hors Abidjan, la pose des stores aussi." }],
@@ -132,7 +138,7 @@ module.exports = async function buildManager(out) {
     [{ text: "Remise : ", bold: true }, { text: "pourcentage, montant fixe ou total négocié ; le brut reste visible." }],
     [{ text: "Tout changement ", bold: true }, { text: "de mesures, composants ou quantités impose un nouveau calcul." }],
   ];
-  L.bullets(s, rules, { x: 7.4, y: 1.75, w: 5.3, h: 5.0, size: 13.5, space: 9 });
+  L.bullets(s, rules, { x: 4.1, y: 1.8, w: 8.6, h: 4.9, size: 15, space: 12 });
   s.addNotes("ADMIN.md (Chiffrage réservé à Admin-CM) et QUOTE-PRICING.md. « Calculer depuis le catalogue » remplace les lignes après confirmation ; le calcul est signé côté serveur ; les lignes commerciales restent modifiables. Surface au m² = largeur × hauteur en cm / 10 000. Accroches par lots de 100. Les tarifs utilisés sont archivés dans le devis : un changement ultérieur du catalogue ne recalcule pas les devis enregistrés. Mode « Saisie entièrement manuelle » pour les dossiers particuliers.");
 
   s = S({ section: "2 · Devis", mod: 2, kicker: "Module 02 · Exemple chiffré", title: "Un devis de 271 875 FCFA, acompte et solde" });
@@ -162,42 +168,42 @@ module.exports = async function buildManager(out) {
   s.addNotes("QUOTE-PRICING.md, Vérification : 241 875 F CFA de fournitures, 30 000 F CFA de frais, 271 875 F CFA de total, 190 313 F CFA d’acompte et 81 562 F CFA de solde. Autres cas testés : six stores à 405 000 F CFA ; remise de 10 % ; total négocié ramené de 579 000 à 515 000 F CFA. L’acompte vaut par défaut 70 % du total définitif ; la remise s’applique sur le brut, l’acompte sur le définitif.");
 
   s = S({ section: "2 · Devis", mod: 2, kicker: "Module 02 · Paiements", title: "Enregistrer l’argent reçu, sans rien effacer" });
-  r = L.shot(pres, s, "paiements", { x: 0.6, y: 1.75, w: 6.6, h: 3.4 }, { align: "left", caption: "Maquette · Bloc Paiements du devis" });
+  r = L.phone(pres, s, "m_paiements", { x: 0.9, y: 1.6, h: 5.2, caption: "Formulaire · Paiements" });
   L.bullets(s, [
     [{ text: "Mode : ", bold: true }, { text: "avance puis solde, ou paiement intégral." }],
     [{ text: "Chaque versement : ", bold: true }, { text: "montant, date, moyen, référence, confirmation ; l’auteur est tracé." }],
     [{ text: "Erreur de saisie ? ", bold: true }, { text: "« Annuler » avec un motif. La trace reste. Ce n’est pas un remboursement." }],
     [{ text: "Garde-fous : ", bold: true }, { text: "les versements ne dépassent pas le total ; le total ne descend pas sous les montants reçus." }],
-  ], { x: 7.6, y: 1.8, w: 5.1, h: 4.6, size: 14, space: 10 });
-  L.card(pres, s, { x: 0.6, y: 5.75, w: 6.6, h: 0.95, fill: HEX.panel, name: "Distinction" });
-  s.addText("Ce suivi des versements du devis est distinct du statut de paiement des factures.", tb({ x: 0.85, y: 5.85, w: 6.1, h: 0.75, fontSize: 13, valign: "middle" }));
+  ], { x: 4.1, y: 1.8, w: 8.6, h: 3.6, size: 15, space: 12 });
+  L.card(pres, s, { x: 4.1, y: 5.6, w: 8.6, h: 1.0, fill: HEX.panel, name: "Distinction" });
+  s.addText("Ce suivi des versements du devis est distinct du statut de paiement des factures.", tb({ x: 4.4, y: 5.7, w: 8.1, h: 0.8, fontSize: 14, valign: "middle" }));
   s.addNotes("ADMIN.md, Formulaire de devis interne point 5 et paragraphe quote_payments : historisés avec l’auteur, annulation avec motif, « Une annulation de saisie n’est pas un remboursement bancaire ». Messages : « Le total ne peut pas être inférieur aux paiements reçus. » ; « L’avance prévue ne peut pas dépasser le total du devis. » Un reçu PDF est disponible par versement.");
 
   // MODULE 3 — Planning ---------------------------------------------------------------
   L.divider(pres, { section: "3 · Planning", kicker: "Module 03", title: "Le planning de l’équipe", body: "Confirmer les rendez-vous, planifier les prestations, affecter les bons agents.", mod: 3, total: T });
 
   s = S({ section: "3 · Planning", mod: 3, kicker: "Module 03 · Rendez-vous", title: "Confirmer, déplacer, annuler, affecter" });
-  r = L.shot(pres, s, "rdv", { x: 0.6, y: 1.65, w: 7.6, h: 4.95 }, { align: "left", caption: "Maquette · Rendez-vous, vue semaine" });
-  L.tag(s, "Règles de l’agenda", 8.6, 1.8, 4);
+  r = L.phone(pres, s, "m_rdv", { x: 0.9, y: 1.6, h: 5.2, caption: "Rendez-vous" });
+  L.tag(s, "Règles de l’agenda", 4.1, 1.8, 6);
   L.bullets(s, [
     [{ text: "Créneaux : ", bold: true }, { text: "8, 9, 10, 11, 14, 15, 16 et 17 h, fermé le dimanche." }],
     [{ text: "Réservation : ", bold: true }, { text: "au moins 1 h à l’avance, jusqu’à 3 mois." }],
     [{ text: "Annuler libère le créneau ", bold: true }, { text: "sans supprimer la demande." }],
     [{ text: "Un créneau = un rendez-vous : ", bold: true }, { text: "« Ce créneau est déjà réservé. »" }],
     [{ text: "Agent : ", bold: true }, { text: "uniquement un agent actif ; il voit alors le rendez-vous." }],
-  ], { x: 8.6, y: 2.15, w: 4.1, h: 4.6, size: 13.5, space: 8 });
+  ], { x: 4.1, y: 2.2, w: 8.6, h: 4.5, size: 15, space: 12 });
   s.addNotes("AppointmentController::update (groupe admin) : date, time parmi config('appointments.slots'), status pending|confirmed|completed|cancelled, agent_id (agent actif), internal_notes. Contrainte d’unicité du créneau : « Ce créneau est déjà réservé. » Une réactivation sur un créneau déjà repris est refusée (ADMIN.md). Vues semaine, jour, liste ; les archives et la corbeille s’affichent en liste.");
 
   s = S({ section: "3 · Planning", mod: 3, kicker: "Module 03 · Prestations", title: "Planifier une prestation sans chevauchement" });
-  r = L.shot(pres, s, "prestations", { x: 0.6, y: 1.65, w: 7.6, h: 4.95 }, { align: "left", caption: "Maquette · Prestations" });
-  L.tag(s, "Nouvelle prestation", 8.6, 1.8, 4);
+  r = L.phone(pres, s, "m_prest", { x: 0.9, y: 1.6, h: 5.2, caption: "Prestations" });
+  L.tag(s, "Nouvelle prestation", 4.1, 1.8, 6);
   L.bullets(s, [
     [{ text: "Type : ", bold: true }, { text: "devis sur place, installation, service après-vente." }],
     [{ text: "Agent actif, date et heure, ", bold: true }, { text: "durée de 15 à 480 min, adresse, consignes." }],
     [{ text: "Lien devis ou rendez-vous : ", bold: true }, { text: "du même client, sinon « Le document appartient à un autre client. »" }],
     [{ text: "Chevauchement refusé : ", bold: true }, { text: "« Cet agent a déjà une prestation sur ce créneau. »" }],
     [{ text: "Planning : ", bold: true }, { text: "créneaux occupés des agents sur 60 jours." }],
-  ], { x: 8.6, y: 2.15, w: 4.1, h: 4.6, size: 13.5, space: 8 });
+  ], { x: 4.1, y: 2.2, w: 8.6, h: 4.5, size: 15, space: 12 });
   s.addNotes("InterventionController::store et planning() : agent_id (rôle agent, actif), scheduled_at, duration_minutes 15..480, address, instructions ; kind devis_sur_place|installation|sav. checkSlot refuse le chevauchement. PLANNING_DAYS = 60. L’agent est notifié à la création et à chaque mise à jour. Seul le bureau annule une prestation.");
 
   s = S({ section: "3 · Planning", mod: 3, kicker: "Module 03 · Affecter et réaffecter", title: "Le bon agent, au bon endroit" });
@@ -221,48 +227,49 @@ module.exports = async function buildManager(out) {
   L.divider(pres, { section: "4 · Gestion", kicker: "Module 04", title: "Gestion du bureau", body: "Clients, factures, messagerie et catalogue : un dossier par client, des documents figés, des envois relus.", mod: 4, total: T });
 
   s = S({ section: "4 · Gestion", mod: 4, kicker: "Module 04 · Clients et contacts", title: "Un dossier par client, rien ne s’efface" });
-  r = L.shot(pres, s, "client", { x: 0.6, y: 1.65, w: 7.6, h: 4.95 }, { align: "left", caption: "Maquette · Fiche client 360°" });
+  r = L.phone(pres, s, "m_client", { x: 0.9, y: 1.6, h: 5.2, caption: "Fiche client" });
   L.bullets(s, [
     [{ text: "Création automatique : ", bold: true }, { text: "une demande du site crée ou retrouve le dossier par adresse e-mail normalisée." }],
     [{ text: "Coordonnées vérifiées : ", bold: true }, { text: "jamais remplacées par une nouvelle demande." }],
     [{ text: "Types : ", bold: true }, { text: "clients, fournisseurs et partenaires créés à la main." }],
     [{ text: "Archiver : ", bold: true }, { text: "masque le dossier des nouvelles affectations, sans effacer devis, rendez-vous, factures ni messages." }],
     [{ text: "Corbeille : ", bold: true }, { text: "restaurer un élément supprimé par erreur." }],
-  ], { x: 8.6, y: 1.8, w: 4.1, h: 4.9, size: 13.5, space: 8 });
+  ], { x: 4.1, y: 1.85, w: 8.6, h: 4.8, size: 15, space: 12 });
   s.addNotes("ADMIN.md, Parcours quotidien points 1 et 6. Routes contacts (index, store, show, update), corbeille (trash.*) : archiver, désarchiver, supprimer, restaurer. Aucun effacement métier n’est exposé dans l’interface en dehors de la corbeille.");
 
   s = S({ section: "4 · Gestion", mod: 4, kicker: "Module 04 · Factures", title: "Préparer, vérifier, émettre, encaisser" });
-  r = L.shot(pres, s, "facture", { x: 0.6, y: 1.65, w: 7.6, h: 4.95 }, { align: "left", caption: "Maquette · Facture en brouillon" });
+  r = L.phone(pres, s, "m_facture", { x: 0.9, y: 1.6, h: 5.2, caption: "Factures" });
   const inv = [["1 · Préparer", "Depuis un devis accepté."], ["2 · Vérifier", "Relire le PDF."], ["3 · Émettre", "Fige montants et taxe ; numéro MDS-0000001 unique, jamais réutilisé."], ["4 · Encaisser", "Enregistrer le paiement intégral reçu."]];
-  inv.forEach(([t, d], i) => s.addText([{ text: t, options: { bold: true, color: HEX.ink, breakLine: true } }, { text: d }], tb({ x: 8.6, y: 1.75 + i * 1.0, w: 4.1, h: 0.95, fontSize: 13, color: HEX.text })));
-  L.card(pres, s, { x: 8.6, y: 5.85, w: 4.1, h: 0.85, fill: HEX.goldTint, line: HEX.goldTint, name: "Limites" });
-  s.addText("Pas d’acomptes, de paiements partiels ni d’avoirs sur les factures dans cette version.", tb({ x: 8.8, y: 5.9, w: 3.7, h: 0.75, fontSize: 12, valign: "middle" }));
+  inv.forEach(([t, d], i) => s.addText([{ text: t, options: { bold: true, color: HEX.ink, breakLine: true } }, { text: d }], tb({ x: 4.1, y: 1.8 + i * 0.95, w: 8.6, h: 0.85, fontSize: 15, color: HEX.text })));
+  L.card(pres, s, { x: 4.1, y: 5.75, w: 8.6, h: 0.9, fill: HEX.goldTint, line: HEX.goldTint, name: "Limites" });
+  s.addText("Pas d’acomptes, de paiements partiels ni d’avoirs sur les factures dans cette version.", tb({ x: 4.4, y: 5.8, w: 8.1, h: 0.8, fontSize: 14, valign: "middle" }));
   s.addNotes("ADMIN.md, Parcours quotidien point 5 et Paramètres de facturation : tant que les mentions de l’entreprise sont incomplètes, les factures restent en brouillon. Le taux de taxe est saisi sur chaque devis. Statuts : Brouillon, Émise, Payée.");
 
   s = S({ section: "4 · Gestion", mod: 4, kicker: "Module 04 · Messagerie", title: "Chaque envoi part d’un brouillon relu" });
-  r = L.shot(pres, s, "messagerie", { x: 0.6, y: 1.65, w: 7.6, h: 4.95 }, { align: "left", caption: "Maquette · Messagerie" });
+  r = L.phone(pres, s, "m_msg", { x: 0.9, y: 1.6, h: 5.2, caption: "Messagerie" });
   L.bullets(s, [
     [{ text: "E-mail : ", bold: true }, { text: "brouillon relu, envoyé explicitement. Document joint au seul client du document." }],
     [{ text: "WhatsApp : ", bold: true }, { text: "ouvre wa.me avec un lien signé vers le PDF exact, valable 30 jours." }],
     [{ text: "« Marquer comme partagé » ", bold: true }, { text: "est une déclaration, pas une preuve de lecture." }],
     [{ text: "Relever les e-mails : ", bold: true }, { text: "20 messages par page, du plus récent au plus ancien." }],
     [{ text: "Promotions : ", bold: true }, { text: "uniquement avec un consentement commercial enregistré." }],
-  ], { x: 8.6, y: 1.8, w: 4.1, h: 4.9, size: 13.5, space: 8 });
+  ], { x: 4.1, y: 1.85, w: 8.6, h: 4.8, size: 15, space: 12 });
   s.addNotes("ADMIN.md, Messagerie Hostinger Email. Statuts : Envoyé (acceptation SMTP, pas la lecture), Envoi à vérifier (incident : vérifier dans Hostinger avant de préparer un autre message), Partagé manuellement. Si les coordonnées ou le document ont changé depuis la préparation, l’envoi est bloqué : préparer un nouveau brouillon. L’acceptation des conditions d’un devis ne vaut pas consentement aux promotions.");
 
   s = S({ section: "4 · Gestion", mod: 4, kicker: "Module 04 · Catalogue", title: "Catalogue, matériaux et finitions" });
-  r = L.shot(pres, s, "materiaux", { x: 0.6, y: 1.65, w: 7.6, h: 4.95 }, { align: "left", caption: "Maquette · Matériaux et finitions" });
-  L.tag(s, "Catalogue (site)", 8.6, 1.8, 4);
+  r = L.phone(pres, s, "m_cat", { x: 0.6, y: 1.6, h: 5.2, caption: "Catalogue" });
+  r = L.phone(pres, s, "m_mat", { x: 3.2, y: 1.6, h: 5.2, caption: "Matériaux et finitions" });
+  L.tag(s, "Catalogue (site)", 6.0, 1.8, 6);
   L.bullets(s, [
     [{ text: "Visible sur le site ", bold: true }, { text: "et Disponible sont indépendants : visible mais indisponible = « sur commande »." }],
     [{ text: "Nouveau produit masqué ", bold: true }, { text: "jusqu’à sa publication." }],
     [{ text: "Masquer le catalogue ", bold: true }, { text: "retire les produits du site, pas des devis." }],
-  ], { x: 8.6, y: 2.15, w: 4.1, h: 2.3, size: 13, space: 6 });
-  L.tag(s, "Matériaux et finitions (devis)", 8.6, 4.5, 4);
+  ], { x: 6.0, y: 2.15, w: 6.7, h: 2.3, size: 14, space: 8 });
+  L.tag(s, "Matériaux et finitions (devis)", 6.0, 4.6, 6);
   L.bullets(s, [
     [{ text: "Prix FCFA, unité, compatibilités ", bold: true }, { text: "et disponibilité de chaque option." }],
     [{ text: "« Demande de devis publique » ", bold: true }, { text: "alimente le formulaire du site sans montrer les prix." }],
-  ], { x: 8.6, y: 4.85, w: 4.1, h: 1.9, size: 13, space: 6 });
+  ], { x: 6.0, y: 4.95, w: 6.7, h: 1.8, size: 14, space: 8 });
   s.addNotes("ADMIN.md, Catalogue et Chiffrage depuis le catalogue. Coûts internes d’un produit : vide = non renseigné, 0 = coût nul ; jamais dans l’API publique et sans recalcul des devis existants. Les tarifs initiaux du seed (occultants, voilages, rails, stores au m², kit moteur 100 000 FCFA, pose store Abidjan 5 000 FCFA par ouverture) restent modifiables et ne sont jamais écrasés par un nouveau seed.");
 
   // MODULE 5 — Cas particuliers -----------------------------------------------------------
@@ -323,14 +330,17 @@ module.exports = async function buildManager(out) {
   L.divider(pres, { section: "6 · Routines", kicker: "Module 06", title: "Votre profil et vos rituels", body: "Personnaliser son espace, puis tenir le bureau au quotidien, chaque semaine et chaque mois.", mod: 6, total: T });
 
   s = S({ section: "6 · Routines", mod: 6, kicker: "Module 06 · Profil et paramètres", title: "Signature, disponibilité, thème" });
-  r = L.shot(pres, s, "profiladmin", { x: 0.6, y: 1.65, w: 7.6, h: 4.95 }, { align: "left", caption: "Maquette · Modifier mon profil (bureau)" });
+  r = L.phone(pres, s, "m_profil", { x: 0.6, y: 1.6, h: 5.2, caption: "Modifier mon profil" });
+  L.marker(pres, s, r, 1, 0.9, 0.54);
+  r = L.phone(pres, s, "m_profilsig", { x: 3.2, y: 1.6, h: 5.2, caption: "Signature et disponibilité" });
+  L.marker(pres, s, r, 2, 0.9, 0.12); L.marker(pres, s, r, 3, 0.9, 0.556);
   L.legend(pres, s, [
-    ["Signature", "Texte de signature (500 caractères au plus)."],
+    ["Identité et coordonnées", "Civilité, nom, fonction, téléphone professionnel, joignable sur WhatsApp."],
+    ["Signature", "Texte de signature (500 caractères au plus), avec aperçu."],
     ["Disponibilité", "Disponible ou absent, avec une date de retour."],
-    ["Coordonnées", "Téléphone professionnel, joignable sur WhatsApp."],
     ["Thème et animations", "Clair, Sombre ou Automatique ; réduire les animations."],
     ["Sécurité", "Changer le mot de passe, déconnecter les autres appareils."],
-  ], { x: 8.6, y: 1.75, w: 4.1, rowH: 0.75, gap: 0.2, size: 13 });
+  ], { x: 6.0, y: 1.75, w: 6.7, rowH: 0.75, gap: 0.2, size: 14 });
   s.addNotes("ProfileController::updateProfile, branche bureau : signature (max 500), back_on (date de retour), availability, phone, whatsapp, cover. updateSettings : theme light|dark|auto, reduce_motion. Les formats sont fixés pour toute l’équipe (JJ/MM/AAAA, 24 h).");
 
   s = S({ section: "6 · Routines", mod: 6, kicker: "Module 06 · Rituels", title: "Chaque jour, chaque semaine, chaque mois" });

@@ -99,6 +99,18 @@ function shot(pres, s, key, box, opts = {}) {
   return { x: x + pad, y: y + pad, w, h };
 }
 
+/** Capture mobile dans un cadre de téléphone (encre, coins arrondis) ; renvoie le rectangle de l'image. */
+function phone(pres, s, key, { x, y, h, caption }) {
+  const pad = 0.08;
+  const ih = h - 2 * pad - (caption ? 0.32 : 0);
+  const [iw0, ih0] = DIMS[key];
+  const iw = ih * iw0 / ih0;
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w: iw + 2 * pad, h: ih + 2 * pad, rectRadius: 0.22, fill: { color: HEX.ink }, line: { color: HEX.ink, width: 0.75 }, shadow: shadow(), objectName: "Téléphone " + key });
+  s.addImage({ path: img(key), x: x + pad, y: y + pad, w: iw, h: ih, altText: "Maquette mobile Espace Pro : " + key, objectName: "Capture mobile " + key });
+  if (caption) s.addText(caption.toUpperCase(), tb({ x: x - 0.2, y: y + ih + 2 * pad + 0.1, w: iw + 2 * pad + 0.4, h: 0.25, align: "center", fontFace: MONO, fontSize: 8.5, color: HEX.text2, charSpacing: 1 }));
+  return { x: x + pad, y: y + pad, w: iw, h: ih, fw: iw + 2 * pad };
+}
+
 /** Pastille numérotée or posée sur une capture (fx, fy en fraction de l'image). */
 function marker(pres, s, rect, n, fx, fy) {
   const d = 0.34;
@@ -197,4 +209,4 @@ function bullets(s, items, { x, y, w, h, size = 15, color = HEX.text, space = 8 
   }).flat(), tb({ x, y, w, h, fontSize: size }));
 }
 
-module.exports = { pptxgen, createDeck, HEX, TONES, STATUS, THEME, MONO, W, H, MX, tb, img, fit, shot, marker, legend, badge, card, tag, tringle, content, divider, table, bullets, shadow };
+module.exports = { pptxgen, createDeck, HEX, TONES, STATUS, THEME, MONO, W, H, MX, tb, img, fit, shot, phone, marker, legend, badge, card, tag, tringle, content, divider, table, bullets, shadow };
